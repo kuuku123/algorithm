@@ -1,0 +1,163 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+
+
+std::pair<int, int> Dir[4] = { {0,1},{1,0},{0,-1},{-1,0} };
+
+int N;
+int map[12][12];
+std::vector<std::pair<int,int>> core;
+std::vector<std::pair<int, int>> temp_answer_list(13);
+
+int total_core = 0;
+int temp_total_core = 0;
+int temp_total_line = 0;
+
+
+
+void DFS_finding_charging_point(int index)
+{
+
+	if (index == core.size())
+	{
+		if (total_core <= temp_total_core)
+		{
+			total_core = temp_total_core;
+			
+
+			if (temp_answer_list[total_core].second > temp_total_line)
+			{
+				temp_answer_list[total_core].second= temp_total_line;
+			}
+		
+		}
+
+		
+		
+		return;
+	}
+
+	int x = core[index].first;
+	int y = core[index].second;
+	for (int j = 0; j < 4; j++)
+	{
+		int newx = x + Dir[j].first;
+		int newy = y + Dir[j].second;
+
+		int line_count = 0;
+		while (newx >= 0 && newx < N && newy >= 0 && newy < N && map[newx][newy] == 0)
+		{
+			map[newx][newy] = 2;
+			line_count++;
+
+			if (newx == 0 || newx == N - 1 || newy == 0 || newy == N - 1)
+			{
+				temp_total_core++;
+				temp_total_line = temp_total_line + line_count;
+				DFS_finding_charging_point(index + 1);
+				while (line_count)
+				{
+					map[newx][newy] = 0; // erarse the line(2) since we came back from it and  (might not be need) then  we need to look other way around
+					newx = newx - Dir[j].first;
+					newy = newy - Dir[j].second;
+					temp_total_line--;
+					line_count--;
+				}
+
+				temp_total_core--;
+				break; // we need to look other way so break the while loop
+
+			}
+
+			newx = newx + Dir[j].first;
+			newy = newy + Dir[j].second;
+
+		}
+		while (line_count)
+		{
+			newx = newx - Dir[j].first;
+			newy = newy - Dir[j].second;
+			map[newx][newy] = 0;
+			line_count--;
+		}
+		
+
+
+	}
+	DFS_finding_charging_point(index + 1); // this execute when 1. core cannot connect anywhere  2. don't want to connect anywhere
+}
+
+
+int main()
+{
+	std::ios_base::sync_with_stdio(0);
+	std::cin.tie(0);
+
+
+	int testcase;
+	std::cin >> testcase;
+	for (int t = 0; t < testcase; t++)
+	{
+		std::cin >> N;
+		for (int i = 0; i < N; i++)
+		{
+			for (int j = 0; j < N; j++)
+			{
+				int value;
+				std::cin >> value;
+				map[i][j] = value;
+				if (value == 1 && (i == 0 || j == 0 || i == N - 1 || j == N - 1))
+				{
+					temp_total_core++;
+				}
+				if (value == 1 && i!=0 && j!=0 && i!=N-1 && j != N-1)
+				{
+					core.emplace_back(std::make_pair(i,j));
+				}
+			}
+		}
+
+		for (int i = 0; i < 13; i++)
+		{
+			temp_answer_list[i].second = 999999;
+		}
+
+		DFS_finding_charging_point(0);
+		
+
+		int best_core_index = -1;
+		for (int i = 12; i >=0; i--)
+		{
+			
+			if (temp_answer_list[i].second != 999999 )
+			{
+				best_core_index = i;
+				break;
+			}
+		}
+
+		if (best_core_index == -1)
+		{
+			std::cout << "#" << t + 1 << " " << 0 << "\n";
+		}
+		else
+		{
+			std::cout << "#"<<t+1<<" "<<temp_answer_list[best_core_index].second<<"\n";
+		}
+
+		memset(map, 0, sizeof(map));
+		core.erase(core.begin(), core.end());
+
+		for (int i = 0; i < 13; i++)
+		{
+			temp_answer_list[i].second = 999999;
+		}
+
+		total_core = 0;
+		temp_total_core = 0;
+		temp_total_core = 0;
+
+
+	}
+}
