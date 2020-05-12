@@ -1,0 +1,167 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+
+int N, X;
+int map[20][20];
+int visited[20][20];
+
+
+void rotate()
+{
+	for (int i = 0; i < N/2; i++)
+	{
+		for (int j = i; j < N-i-1; j++)
+		{
+			int temp = map[i][j];
+			map[i][j] = map[j][N - 1-i];
+			map[j][N - 1-i] = map[N - 1-i][N - 1-j];
+			map[N - 1-i][N - 1-j] = map[N - 1-j][i];
+			map[N - 1-j][i] = temp;
+
+		}
+	}
+}
+
+
+void print()
+{
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			std::cout << map[i][j] << " ";
+		}
+		std::cout << "\n";
+	}
+}
+
+int can_make_trinangle(int row ,int col, int value)
+{
+	int k = col + 1 - X;
+	if (k < 0)
+	{
+		return 0;
+	}
+	for (int j = 0; j < X; j++)
+	{
+		if (value != map[row][col - j] || visited[row][col-j] == 1)
+		{
+			return 0;
+		}
+	}
+	for (int j = 0; j < X; j++)
+	{
+		visited[row][col - j] = 1;
+	}
+	return 1;
+}
+
+int can_make_trinangle2(int row, int col, int value)
+{
+	int k = col + X;
+	if (k > N-1)
+	{
+		return 0;
+	}
+	for (int j = 0; j < X; j++)
+	{
+		if (map[row][col+1] != map[row][col +1+j] || visited[row][col+1+j] == 1)
+		{
+			return 0;
+		}
+	}
+	for (int j = 0; j < X; j++)
+	{
+		visited[row][col + 1+j] = 1;
+	}
+	return 1;
+}
+
+
+int is_possible(int row)
+{
+	for (int i = 0; i < N-1; i++)
+	{
+		int value = map[row][i];
+		int next_value = map[row][i + 1];
+
+		if (abs(next_value - value) >= 2)
+		{
+			return 0;
+		}
+		if (next_value - value == 1)
+		{
+			if (can_make_trinangle(row,i,value))
+			{
+				continue;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		if (next_value - value == -1)
+		{
+			if (can_make_trinangle2(row,i,value))
+			{
+				continue;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+	}
+}
+
+int main()
+{
+	std::ios_base::sync_with_stdio(0);
+	std::cin.tie(0);
+
+	int testcase;
+	std::cin >> testcase;
+	
+	for (int t = 0; t < testcase; t++)
+	{
+		std::cin >> N >> X;
+		for (int i = 0; i < N; i++)
+		{
+			for (int j = 0; j < N; j++)
+			{
+				std::cin >> map[i][j];
+			}
+		}
+
+		int answer = 0;
+		for (int i = 0; i < N; i++)
+		{
+
+			if (i == 5)
+			{
+				int asd = 0;
+			}
+			if (is_possible(i))
+			{
+				answer++;
+				//std::cout << i << " ";
+			}
+		}
+		//std::cout << "\n";
+		rotate();
+		memset(visited, 0, sizeof(visited));
+		for (int i = 0; i < N; i++)
+		{
+			if (is_possible(i))
+			{
+				answer++;
+				//std::cout << i << " ";
+			}
+		}
+
+		std::cout << "#" << t + 1 << " " << answer << "\n";
+		memset(map, 0, sizeof(map));
+		memset(visited, 0, sizeof(visited));
+	}	
+}
