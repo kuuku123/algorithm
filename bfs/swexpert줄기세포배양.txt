@@ -2,22 +2,22 @@
 #include <vector>
 #include <cstring>
 
-std::vector<struct cell> live_list;
+
+std::pair<int, int> Dir[4] = { {0,1},{1,0},{0,-1},{-1,0} };
 
 struct cell
 {
 	int level;
-	int is_active;
-	int is_alive;
+	bool is_active;
+	bool is_alive;
 	int cur_cell_time;
-	int x;
-	int y;
+	int x, y;
 };
+
 struct cell map[650][650];
+std::vector<cell> live_list;
 
-std::pair<int, int> Dir[4] = { {0,1},{1,0},{0,-1},{-1,0} };
-
-void update_live_list(int current_time)
+void update_live_list()
 {
 	for (int i = 0; i < live_list.size(); i++)
 	{
@@ -25,45 +25,38 @@ void update_live_list(int current_time)
 		{
 			live_list[i].is_active = 1;
 		}
-		if (live_list[i].level*2 - live_list[i].cur_cell_time == 0)
+
+		if (live_list[i].level * 2 - live_list[i].cur_cell_time == 0)
 		{
 			live_list[i].is_alive = 0;
-	
 		}
+		
 		live_list[i].cur_cell_time++;
 		map[live_list[i].x][live_list[i].y] = live_list[i];
+		
 	}
 }
 
-void spread_bfs()
+void bfs_spread()
 {
-	int size = live_list.size();
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < live_list.size(); i++)
 	{
-		if (live_list[i].is_active == 1 && live_list[i].is_alive ==1)
+		if (live_list[i].is_alive == 0)
 		{
+			live_list.erase(live_list.begin() + i);
+		}
+		if (live_list[i].is_active == 1 && live_list[i].is_alive == 1)
+		{
+
 			for (int j = 0; j < 4; j++)
 			{
 				int newx = live_list[i].x + Dir[j].first;
 				int newy = live_list[i].y + Dir[j].second;
 
-				if (map[newx][newy].level != 0 && map[newx][newy].level < live_list[i].level && map[newx][newy].cur_cell_time == 0)
+				if (map[newx][newy].level == 0 || (map[newx][newy].level < live_list[i].level && map[newx][newy].cur_cell_time == 0))
 				{
-					struct cell c = { live_list[i].level,0,1,0,newx,newy };
-					for (int i = 0; i < live_list.size(); i++)
-					{
-						if (live_list[i].x == newx && live_list[i].y == newy)
-						{
-							live_list[i] = c;
-							map[newx][newy] = c;
-							break;
-						}
-					}
-					
-				}
-				else if (map[newx][newy].level == 0)
-				{
-					struct cell c = { live_list[i].level,0,1,0,newx,newy };
+
+					struct cell c = { live_list[i].level, 0,1,0,newx,newy };
 					live_list.emplace_back(c);
 					map[newx][newy] = c;
 				}
@@ -72,18 +65,18 @@ void spread_bfs()
 	}
 }
 
+
 void print()
 {
-	for (int i = 290; i < 310; i++)
+	for (int i = 295; i < 310; i++)
 	{
-		for (int j = 290; j < 310; j++)
+		for (int j = 295; j < 310; j++)
 		{
 			std::cout << map[i][j].level << " ";
 		}
 		std::cout << "\n";
 	}
 }
-
 int main()
 {
 	std::ios_base::sync_with_stdio(0);
@@ -91,7 +84,6 @@ int main()
 
 	int testcase;
 	std::cin >> testcase;
-
 	for (int t = 0; t < testcase; t++)
 	{
 		int N, M, K;
@@ -105,20 +97,19 @@ int main()
 				std::cin >> value;
 				if (value > 0)
 				{
-					struct cell c = { value,0,1,0,300+i,300+j};
-					map[i + 300][j + 300] = c;
+					struct cell c = { value,0,1,0,300 + i,300 + j };
 					live_list.emplace_back(c);
+					map[300 + i][300 + j] = c;
 				}
 			}
 		}
 
-
 		for (int i = 0; i < K+1; i++)
 		{
-			spread_bfs();
-			update_live_list(i+1);
-			/*print();
-			std::cout << "----------------" <<i<< "\n";*/
+			bfs_spread();
+			update_live_list();
+	/*		print();
+			std::cout << "------------------------" << i << "\n";*/
 		}
 		int answer = 0;
 		for (int i = 0; i < live_list.size(); i++)
@@ -128,9 +119,10 @@ int main()
 				answer++;
 			}
 		}
-		std::cout << "#" << t + 1 << " " << answer << "\n";
+
+		std::cout << "#" << t + 1 << " " << answer<<"\n";
 		memset(map, 0, sizeof(map));
 		live_list.erase(live_list.begin(), live_list.end());
-
+		
 	}
 }
