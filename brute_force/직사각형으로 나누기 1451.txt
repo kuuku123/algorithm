@@ -1,0 +1,167 @@
+#include <iostream>
+#include <vector>
+
+
+int row, col;
+int larger;
+int map[100][100];
+
+
+long long answer;
+
+
+long long sum(int left, int right, int up, int down)
+{
+	long long temp_answer = 0;
+	for (int i = up; i <= down; i++)
+	{
+		for (int j = left; j <= right; j++)
+		{
+			temp_answer = temp_answer + (long long)map[i][j];
+		}
+	}
+	return temp_answer;
+}
+
+void divide_col()
+{
+	long long temp_answer = 0;
+	if (col<3)
+	{
+		return;
+	}
+	for (int i = 0; i < col; i++)
+	{
+		for(int j = i+1; j<col; j++)
+		{
+			long long s = sum(0, i, 0, row - 1) * sum(i + 1, j, 0, row - 1) * sum(j + 1, col - 1, 0, row - 1);
+			if (temp_answer < s)
+			{
+				temp_answer = s;
+			}
+		}
+	}
+	if (answer < temp_answer)
+	{
+		answer = temp_answer;
+	}
+}
+
+void divide_row()
+{
+	long long temp_answer = 0;
+	if (row < 3)
+	{
+		return;
+	}
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = i + 1; j < row; j++)
+		{
+			long long s = sum(0, col-1, 0, i) * sum(0, col-1, i+1, j) * sum(0, col - 1, j+1, row-1);
+			if (temp_answer < s)
+			{
+				temp_answer = s;
+			}
+		}
+	}
+	if (answer < temp_answer)
+	{
+		answer = temp_answer;
+	}
+}
+
+void divide_four()
+{
+	long long temp_answer = 0;
+	if (row == 1 && col == 1)
+	{
+		return;
+	}
+	for (int k = 0; k < 4; k++)
+	{
+		for (int i = 0; i < row; i++)
+		{
+			for (int j = 0; j < col; j++)
+			{
+				if (k == 0)
+				{
+					long long k = sum(0, col - 1, 0, i)* sum(0, j, i + 1, row - 1)* sum(j + 1, col - 1, i + 1, row - 1);
+					if (temp_answer < k)
+					{
+						temp_answer = k;
+					}
+				}
+				if (k == 1)
+				{
+					long long k = sum(0, j, 0, i) * sum(0, j, i + 1, row - 1) * sum(j + 1, col - 1, 0, row - 1);
+					if (temp_answer < k)
+					{
+						temp_answer = k;
+					}
+				}
+
+				if (k == 2)
+				{
+					long long k = sum(0, j, 0, i) * sum(j+1, col-1, 0, i) * sum(0, col - 1, i + 1, row - 1);
+					if (temp_answer < k)
+					{
+						temp_answer = k;
+					}
+				}
+
+				if (k == 3)
+				{
+					long long k = sum(0, j, 0, row-1) * sum(j+1, col-1, 0, i) * sum(j + 1, col - 1, i + 1, row - 1);
+					if (temp_answer < k)
+					{
+						temp_answer = k;
+					}
+				}
+
+			}
+		}
+	}
+	if (answer < temp_answer)
+	{
+		answer = temp_answer;
+	}
+}
+
+
+void print()
+{
+	for (int i = 0; i < larger; i++)
+	{
+		for (int j = 0; j < larger; j++)
+		{
+			std::cout << map[i][j] << " ";
+		}
+		std::cout << "\n";
+	}
+	std::cout << "---------" << "\n";
+}
+
+int main()
+{
+	std::ios_base::sync_with_stdio(0);
+	std::cin.tie(0);
+
+	std::cin >> row >> col;
+
+	for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
+			char value;
+			std::cin >> value;
+			int k = value - '0';
+			map[i][j] = k;
+		}
+	}
+	divide_col();
+	divide_row();
+	divide_four();
+
+	std::cout << answer;
+}
