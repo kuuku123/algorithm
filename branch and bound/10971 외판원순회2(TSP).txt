@@ -1,0 +1,73 @@
+#include <iostream>
+#include <cstring>
+
+int N;
+int temp_total_path;
+int total_path = 1e9;
+int visited[10];
+int map[10][10];
+int copy[10];
+
+void dfs(int start, int index, int real_start)
+{
+	visited[start] = 1;
+	if (index == N - 1)
+	{
+		if (map[start][real_start] != 0)
+		{
+			temp_total_path = temp_total_path + map[start][real_start];
+			if (total_path > temp_total_path)
+			{
+				total_path = temp_total_path;
+			}
+			temp_total_path = temp_total_path - map[start][real_start];
+		}
+		
+		return;
+	}
+
+	for (int i = 0; i < N; i++)
+	{
+		if (visited[i] == 0 && map[start][i] != 0)
+		{
+			visited[i] = 1;
+			temp_total_path = temp_total_path + map[start][i];
+			if (total_path < temp_total_path)
+			{
+				visited[i] = 0;
+				temp_total_path = temp_total_path - map[start][i];
+				continue;
+			}
+			dfs(i, index + 1, real_start);
+			visited[i] = 0;
+			temp_total_path = temp_total_path - map[start][i];
+		}
+	}
+}
+
+int main()
+{
+	std::ios_base::sync_with_stdio(0);
+	std::cin.tie(0);
+
+	std::cin >> N;
+	for (int i = 0; i < N; i++)
+	{
+		for (int j = 0; j < N; j++)
+		{
+			std::cin >> map[i][j];
+		}
+	}
+
+
+	for (int i = 0; i < N; i++)
+	{
+		dfs(i, 0, i);
+		memset(visited, 0, sizeof(visited));
+		temp_total_path = 0;
+	}
+
+		std::cout << total_path;
+
+
+}
