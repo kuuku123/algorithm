@@ -1,0 +1,207 @@
+#include <iostream>
+#include <vector>
+#include <cstring>
+
+std::pair<int, int> Dir[4] = { {0,1},{1,0},{0,-1},{-1,0} };
+
+int map[15][12];
+int copy[15][12];
+int answer = 1e9;
+int temp_answer = 0;
+int N, W, H;
+int r;
+
+std::vector<int> copy2;
+std::vector<int> arr;
+int visited[12];
+
+
+
+void iterate_on(int index);
+
+void dfs(int index,int count)
+{
+	
+	if (index == count )
+	{
+		/*for (int i = 0; i < count; i++)
+		{
+			std::cout << copy2[i] << " ";
+		}
+		std::cout << "\n";*/
+		for (int i = 0; i < count; i++)
+		{
+			if (copy2[0] == 5 && copy2[1] == 1 &&copy2[2] ==1)
+			{
+				int sds = 0;
+			}
+			int value = copy2[i];
+			iterate_on(value);
+			if (answer > temp_answer)
+			{
+				answer = temp_answer;
+			}
+		}
+
+		temp_answer = r;
+		memcpy(map,copy,sizeof(map));
+		return;
+	}
+
+	for (int i = 0; i < W; i++)
+	{
+
+
+		copy2[index] = arr[i];
+		dfs(index + 1, count);
+
+	}
+
+}
+
+
+void arrange()
+{
+
+	for (int i = 0; i < W; i++)
+	{
+		int index_to_fill = 0;
+		int flag = 0;
+		for (int j = H-1; j >=0; j--)
+		{
+			if (map[j][i] == 0)
+			{
+				flag = 1;
+				index_to_fill = j;
+				break;
+			}
+		}
+		if (flag == 1)
+		{
+			for (int j = index_to_fill; j >= 0; j--)
+			{
+
+				if (map[j][i] > 0)
+				{
+					map[index_to_fill][i] = map[j][i];
+					map[j][i] = 0;
+					index_to_fill--;
+				}
+			}
+		}
+		
+	}
+}
+
+void boom(int x, int y)
+{
+
+	int s = map[x][y] - 1;
+
+	if (map[x][y] > 0)
+	{
+		map[x][y] = 0;
+		temp_answer--;
+	}
+	if (s == 0)
+	{
+		return;
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		int value = s;
+
+		
+		int newx = x;
+		int newy = y;
+
+		while (value)
+		{
+			value--;
+			newx = newx + Dir[i].first;
+			newy = newy + Dir[i].second;
+			if (newx < 0 || newy < 0 || newx >= H || newy >= W)
+			{
+				break;
+			}
+			if (map[newx][newy] > 0)
+			{
+				boom(newx, newy);
+			}
+			
+			
+		}
+
+	}
+
+}
+void iterate_on(int index)
+{
+	if (map[H - 1][index] == 0)
+	{
+		return;
+	}
+	int i = 0;
+	while (map[i][index] == 0 && i != H)
+	{
+		i++;
+	}
+	if (i == H)
+	{
+		return;
+	}
+	boom(i, index);
+	arrange();
+
+	
+	
+
+}
+
+int main()
+{
+	std::ios_base::sync_with_stdio(0);
+	std::cin.tie(0);
+
+	int testcase;
+	std::cin >> testcase;
+	
+	for (int t = 0; t < testcase; t++)
+	{
+		std::cin >> N >> W >> H;
+		for (int i = 0; i < H; i++)
+		{
+			for (int j = 0; j < W; j++)
+			{
+				
+				std::cin >> map[i][j];
+				if (map[i][j] > 0)
+				{
+					temp_answer++;
+				}
+			}
+		}
+		r = temp_answer;
+		memcpy(copy, map, sizeof(map));
+		
+		for (int i = 0; i < W; i++)
+		{
+			arr.emplace_back(i);
+		}
+		for (int i = 0; i < N; i++)
+		{
+			copy2.emplace_back(0);
+		}
+		
+
+		dfs(0, N);
+		
+		std::cout << "#" << t + 1 << " " << answer << "\n";
+		answer = 1e9;
+		memset(map, 0, sizeof(map));
+		memset(copy, 0, sizeof(copy));
+		arr.clear();
+		copy2.clear();
+		temp_answer = 0;
+	}
+}
